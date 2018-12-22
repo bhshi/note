@@ -188,3 +188,105 @@ tree对象结果如下：(1)文件模式; (2)文件类型; (3)文件SHA-1值; (4
     .git/objects/25/03b388d04ac88965fb0a478a0f3a7b7b5b73b1  commit_obj:commit1
     .git/objects/8a/3dec0582c11b02b13b3f7c843b9720bab4d43b  tree: commit1
     .git/objects/55/7db03de997c86a4a028e1ebd3a1ceb225be238  blob: commit1 README
+
+
+#### 操作与仓库映射
+
+##### 当使用add命令，把文件加入暂存区后，如下：（这里过滤了hooks,info,config目录)
+
+    find . \( -path './hooks' -o -path './info' -o -path './config' \) -prune -o -type f -print
+
+    ./objects/5f/2f16bfff90e6620509c0cf442e7a3586dad8fb     保存了数据内容
+    ./HEAD          ref: refs/heads/master
+    ./description   Unnamed repository; edit this file 'description' to name the repository.
+    ./index         显示了git status命令后的内容
+    # On branch master
+    #
+    # No commits yet
+    #
+    # Changes to be committed:
+    #   (use "git rm --cached <file>..." to unstage)
+    #
+    #	new file:   1.txt
+    #
+
+##### 当commit后，如下
+
+    ./objects/5f/2f16bfff90e6620509c0cf442e7a3586dad8fb 原来的bolb对象
+    ./objects/f2/47b834ef184f089e578b9cb430b7807b319e86 新增的对于整个目录文件的tree对象
+    ./objects/f5/87c6a6cb0917dd3be6ce25528231b5f2bfb858 新增的commit对象,包含上面tree对象
+    ./HEAD  ref: refs/heads/master
+    ./logs/HEAD 新增文件：包含提交id, 提交信息，提交人员信息
+    ./logs/refs/heads/master    新增文件：内容同上
+    ./description               不变
+    ./refs/heads/master         新增：保存了提交id
+    ./index                     显示了git status命令后的内容
+    ./COMMIT_EDITMSG            保存了提交信息
+
+
+##### 当再次修改加入暂存区
+
+    .git/objects/5f/2f16bfff90e6620509c0cf442e7a3586dad8fb  第一版文件blob对象
+    .git/objects/f2/47b834ef184f089e578b9cb430b7807b319e86  第一次提交目录tree对象
+    .git/objects/f5/87c6a6cb0917dd3be6ce25528231b5f2bfb858  第一次提交对象
+    .git/objects/4f/142ee300fd3f4fa2e89c76c76c0923d911f7ea  新增:第二版文件对象
+    .git/HEAD   不变
+    .git/logs/HEAD  不变
+    .git/logs/refs/heads/master 不变
+    .git/description    不变
+    .git/refs/heads/master  不变
+    .git/index  不变
+    .git/COMMIT_EDITMSG 不变
+
+##### 当再次提交到仓库
+
+    .git/objects/5f/2f16bfff90e6620509c0cf442e7a3586dad8fb  第一版文件blob对象
+    .git/objects/f2/47b834ef184f089e578b9cb430b7807b319e86  第一次提交目录tree对象
+    .git/objects/f5/87c6a6cb0917dd3be6ce25528231b5f2bfb858  第一次提交对象
+    .git/objects/4f/142ee300fd3f4fa2e89c76c76c0923d911f7ea  第二版文件对象
+    .git/objects/89/198d005fd1df8fff09ec11bf7a19eb75f5cadd  新增：第二版提交对象
+    .git/objects/5f/f0bb50a893649be2e24c7c3f086382cc8681e3  新增：第二版提交目录tree对象
+    .git/HEAD   不变
+    .git/logs/HEAD  新增：第二次提交信息，当前commit id和父commit id
+0000000000000000000000000000000000000000 f587c6a6cb0917dd3be6ce25528231b5f2bfb858 BH_SHI <bh.shi@icloud.com> 1545442680 +0800	commit (initial): version 1
+
+f587c6a6cb0917dd3be6ce25528231b5f2bfb858 89198d005fd1df8fff09ec11bf7a19eb75f5cadd BH_SHI <bh.shi@icloud.com> 1545444003 +0800	commit: version 2
+
+    .git/logs/refs/heads/master 同上
+    .git/description    不变
+    .git/refs/heads/master 改变：保存第二次提交id
+    .git/index  显示git status后信息
+    .git/COMMIT_EDITMSG 改变：第二次提交信息
+
+
+##### Git Reset操作
+    git reset --hard f587
+
+    .git/ORIG_HEAD  第二次提交对象
+
+    数据对象保持不变
+    .git/objects/5f/2f16bfff90e6620509c0cf442e7a3586dad8fb  
+    .git/objects/5f/f0bb50a893649be2e24c7c3f086382cc8681e3
+    .git/objects/f2/47b834ef184f089e578b9cb430b7807b319e86
+    .git/objects/f5/87c6a6cb0917dd3be6ce25528231b5f2bfb858
+    .git/objects/89/198d005fd1df8fff09ec11bf7a19eb75f5cadd
+    .git/objects/4f/142ee300fd3f4fa2e89c76c76c0923d911f7ea
+
+    .git/HEAD   不变
+    .git/logs/HEAD  记录了操作信息
+
+0000000000000000000000000000000000000000 f587c6a6cb0917dd3be6ce25528231b5f2bfb858 BH_SHI <bh.shi@icloud.com> 1545442680 +0800	commit (initial): version 1
+
+f587c6a6cb0917dd3be6ce25528231b5f2bfb858 89198d005fd1df8fff09ec11bf7a19eb75f5cadd BH_SHI <bh.shi@icloud.com> 1545444003 +0800	commit: version 2
+
+89198d005fd1df8fff09ec11bf7a19eb75f5cadd f587c6a6cb0917dd3be6ce25528231b5f2bfb858 BH_SHI <bh.shi@icloud.com> 1545452739 +0800	reset: moving to f587
+
+f587c6a6cb0917dd3be6ce25528231b5f2bfb858 89198d005fd1df8fff09ec11bf7a19eb75f5cadd BH_SHI <bh.shi@icloud.com> 1545452814 +0800	reset: moving to 89198
+
+89198d005fd1df8fff09ec11bf7a19eb75f5cadd f587c6a6cb0917dd3be6ce25528231b5f2bfb858 BH_SHI <bh.shi@icloud.com> 1545452867 +0800	reset: moving to f587
+
+    .git/logs/refs/heads/master 同上
+    .git/description    不变
+    .git/refs/heads/master  保存当前提交id
+    .git/index  显示git status的信息
+    .git/COMMIT_EDITMSG 不变
