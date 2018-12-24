@@ -26,7 +26,7 @@ git mv                                      移动或者重命名文件
 ```
 ```
 git commit -m               gcmsg           把暂存区提交到仓库
-git commit -a -m            gcam            把已被准追的修改的工作区都提交到仓库
+git commit -a -m            gcam            把已被追踪的修改的工作区都提交到仓库
 git commit -v --amend       gc!             重新提交，覆盖上次提交
 ```
 
@@ -290,3 +290,91 @@ f587c6a6cb0917dd3be6ce25528231b5f2bfb858 89198d005fd1df8fff09ec11bf7a19eb75f5cad
     .git/refs/heads/master  保存当前提交id
     .git/index  显示git status的信息
     .git/COMMIT_EDITMSG 不变
+
+#### Unstage操作
+
+    git reset HEAD
+    提交了2次后，修改再加入暂存区，查看信息如下：
+
+    find .git -type f | wc -l   总共有27个文件
+    find .git -type d | wc -l   总共有18个目录
+    
+    .git/objects/58/c9bdf9d017fcd178dc8c073cbfcbb7ff240d6c
+    .git/objects/58/736bb5bad915b7619ddc90e0043fe3a7bc967b
+    .git/objects/a3/0a52a3be2c12cbc448a5c9be960577d13f4755
+    .git/objects/87/4555cd6411a6c8dd7e747c98de6cd3188f773e
+    .git/objects/64/1d57406d212612a9e89e00db302ce758e558d2
+    .git/objects/77/abbabf85af7b7832366f949df78f771dac0a6d
+    .git/objects/15/d24c3da7a41ca03790a652d796fedad38ee0c4
+    .git/HEAD   ref: refs/heads/master
+    .git/logs/HEAD
+
+0000000000000000000000000000000000000000 874555cd6411a6c8dd7e747c98de6cd3188f773e BH_SHI <bh.shi@icloud.com> 1545568585 +0800	commit (initial): version 1
+
+874555cd6411a6c8dd7e747c98de6cd3188f773e 77abbabf85af7b7832366f949df78f771dac0a6d BH_SHI <bh.shi@icloud.com> 1545568601 +0800	commit: version 2
+
+    .git/logs/refs/heads/master 同上
+    .git/refs/heads/master  77abbabf85af7b7832366f949df78f771dac0a6d
+    .git/index
+
+```
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   1.txt
+#
+```
+
+    .git/COMMIT_EDITMSG     version 2
+
+    UNSTAGE操作后，查看信息如下：
+
+    find .git -type f | wc -l   总共有28个文件
+    find .git -type d | wc -l   总共有18个目录
+    文件都多一个ORIG_HEAD
+
+    .git/ORIG_HEAD  77abbabf85af7b7832366f949df78f771dac0a6d
+    .git/objects/58/c9bdf9d017fcd178dc8c073cbfcbb7ff240d6c
+    .git/objects/58/736bb5bad915b7619ddc90e0043fe3a7bc967b
+    .git/objects/a3/0a52a3be2c12cbc448a5c9be960577d13f4755
+    .git/objects/87/4555cd6411a6c8dd7e747c98de6cd3188f773e
+    .git/objects/64/1d57406d212612a9e89e00db302ce758e558d2
+    .git/objects/77/abbabf85af7b7832366f949df78f771dac0a6d
+    .git/objects/15/d24c3da7a41ca03790a652d796fedad38ee0c4
+    .git/HEAD   不变
+    .git/logs/HEAD
+
+0000000000000000000000000000000000000000 874555cd6411a6c8dd7e747c98de6cd3188f773e BH_SHI <bh.shi@icloud.com> 1545568585 +0800	commit (initial): version 1
+
+874555cd6411a6c8dd7e747c98de6cd3188f773e 77abbabf85af7b7832366f949df78f771dac0a6d BH_SHI <bh.shi@icloud.com> 1545568601 +0800	commit: version 2
+
+77abbabf85af7b7832366f949df78f771dac0a6d 77abbabf85af7b7832366f949df78f771dac0a6d BH_SHI <bh.shi@icloud.com> 1545569578 +0800	reset: moving to HEAD
+
+    .git/logs/refs/heads/master
+
+0000000000000000000000000000000000000000 874555cd6411a6c8dd7e747c98de6cd3188f773e BH_SHI <bh.shi@icloud.com> 1545568585 +0800	commit (initial): version 1
+
+874555cd6411a6c8dd7e747c98de6cd3188f773e 77abbabf85af7b7832366f949df78f771dac0a6d BH_SHI <bh.shi@icloud.com> 1545568601 +0800	commit: version 2
+
+    .git/refs/heads/master  不变
+    .git/index
+```
+# On branch master
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   1.txt
+#
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+    .git/COMMIT_EDITMSG
+
+    总结：1.多了一个ORIG_HEAD（记录reset之前的提交)
+    2. logs/HEAD记录reset动作
+    3. logs/refs/head/master没有记录reset HEAD动作
+    4. index会显示不一样内容
+    5. stage过的内容在unstage后保留在object下面
+
