@@ -31,7 +31,6 @@ Plugin 'honza/vim-snippets'
 Plugin 'godlygeek/tabular'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'plasticboy/vim-markdown'
-"Plugin 'suan/vim-instant-markdown'
 Plugin 'iamcco/markdown-preview.vim'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'jnurmine/Zenburn'
@@ -232,6 +231,7 @@ set backspace=indent,eol,start
 "-------------------------------------------------
 " colorscheme setting 
 "-------------------------------------------------
+set background=dark
 colorscheme solarized
 "colorscheme molokai
 "colorscheme phd
